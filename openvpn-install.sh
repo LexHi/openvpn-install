@@ -366,6 +366,7 @@ function installQuestions () {
 		DH_CURVE="prime256v1"
 		HMAC_ALG="SHA256"
 		TLS_SIG="1" # tls-crypt
+		
 	else
 		echo ""
 		echo "Choose which cipher you want to use for the data channel:"
@@ -568,6 +569,45 @@ function installQuestions () {
 				read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
 		done
 	fi
+	
+	echo ""
+	until [[ $OUTBOUND_VPN_INSTALL =~ (y|n) ]]; do
+		read -rp "Do you want to setup the outbound VPN connection? [y/n]: " -e -i n OUTBOUND_VPN_INSTALL
+	done
+	if [[ $OUTBOUND_VPN_INSTALL == "n" ]];then
+		OUTBOUND_VPN_LOCATION="./out/"
+		OUTBOUND_VPN_FILE="out.ovpn"
+	else
+		echo ""
+		echo "Please enter the location of the outbound VPN config package"
+		read -rp "Package location []: " -e -i 1 OUTBOUND_VPN_LOCATION
+		echo ""
+		echo "Please enter the *.ovpn file name:"
+		read -rp "Filename []: " -e -i 1 OUTBOUND_VPN_FILE
+	fi
+	
+	echo ""
+	until [[ $OUTBOUND_VPN_ADDITIONAL_OPTIONS =~ (y|n) ]]; do
+		read -rp "Customize routing settings? [y/n]: " -e -i n OUTBOUND_VPN_ADDITIONAL_OPTIONS
+	done
+	if [[ $OUTBOUND_VPN_ADDITIONAL_OPTIONS == "n" ]];then
+		OUTBOUND_VPN_FORCE="y"
+		OUTBOUND_VPN_HOST_TRAFFIC="n"
+	else
+		echo ""
+		echo "You can make all the network traffic to be directed only through"
+		echo "outbound VPN connection blocking it in case of VPN outage."
+		until [[ $OUTBOUND_VPN_FORCE =~ (y|n) ]]; do
+			read -rp "Route network traffic only through VPN [y/n]: " -e -i 1 OUTBOUND_VPN_FORCE
+		done
+		echo ""
+		echo "You can make the host traffic (i.e. updates) to be directed only through"
+		echo "outbound VPN connection blocking it in case of VPN outage."
+		until [[ $OUTBOUND_VPN_HOST_TRAFFIC =~ (y|n) ]]; do
+			read -rp "Route host traffic only through VPN [y/n]: " -e -i 1 OUTBOUND_VPN_HOST_TRAFFIC
+		done
+	fi
+
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
 	echo "You will be able to generate a client at the end of the installation."
